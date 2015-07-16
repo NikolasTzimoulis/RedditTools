@@ -1,6 +1,6 @@
-.project
-.pydevproject
+.settings/
+*.project
+*.pydevproject
 *.db
-*.prefs
-*.settings/org.eclipse.core.resources.prefs
 *.pickle
+*.pyc
