@@ -4,3 +4,5 @@
 *.db
 *.pickle
 *.pyc
+*.json
+*.pkl

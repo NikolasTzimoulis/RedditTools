@@ -18,6 +18,7 @@ with con:
         pass
 
 user = r.get_redditor(accountName)
+con = lite.connect(taskDB)
 
 while True:
     print "Downloading posts and comments...",

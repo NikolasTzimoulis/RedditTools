@@ -4,15 +4,16 @@ import math
 
 reddit = "https://www.reddit.com/comments/"
 
-user1 = "AThinker"
-user2 = "PrincessDanna"
-similarityThreshold = 30
+user1 = "Naurgul"
+user2 = "kafros"
+similarityThreshold = 20
 
 userProfiles = pickle.load(open("profiles.pickle", "rb"))
 dictionary = pickle.load(open("dict.pickle", "rb"))
         
 def sim(comment1, comment2):
-    freqList = map(lambda x: 1.0/math.pow(dictionary[x],2), comment1[1].intersection(comment2[1]))
+    commentIntersection =  comment1[1].intersection(comment2[1])
+    freqList = map(lambda x: 1.0/math.pow(dictionary[x],3), commentIntersection)
     return int(100*sum(freqList))
 
 matrix = []
