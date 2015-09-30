@@ -34,7 +34,6 @@ r.login(userName, passWord, disable_warning=True)
 googleCalendar.setCalendarID(calendarID)
 now = datetime.datetime.utcnow()
 events = googleCalendar.getEvents(lastSubmitDate+datetime.timedelta(days=1), datetime.datetime(now.year, now.month, now.day, 23, 59))
-print (lastSubmitDate+datetime.timedelta(days=1), datetime.datetime(now.year, now.month, now.day, 23, 59))
 for e in events:
     try:
         if e['description'].startswith('http'):
