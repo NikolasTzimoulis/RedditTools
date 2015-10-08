@@ -16,7 +16,7 @@ try:
     lastSubmitDate = pickle.load(lastSubmitDateFile)
     lastSubmitDateFile.close()
 except:
-    lastSubmitDate = datetime.datetime(1, 1, 1) 
+    lastSubmitDate = datetime.datetime(1, 1, 1)
 
 try:
     passwordFile = open(passwordFileName, 'rb')
@@ -33,6 +33,7 @@ r = praw.Reddit(user_agent=subreddit)
 r.login(userName, passWord, disable_warning=True)
 googleCalendar.setCalendarID(calendarID)
 now = datetime.datetime.utcnow()
+now = datetime.datetime(now.year, now.month, now.day) 
 events = googleCalendar.getEvents(lastSubmitDate+datetime.timedelta(days=1), datetime.datetime(now.year, now.month, now.day, 23, 59))
 for e in events:
     try:
@@ -40,7 +41,8 @@ for e in events:
             link = e['description']
         else:
             link = e['source']['url']
-        r.submit(subreddit, e['summary'], url=link)
+        submission = r.submit(subreddit, e['summary'], url=link)
+        r.set_flair(subreddit, submission, flair_text=u'inbox', flair_css_class=u'inbox')
         print e['summary']
     except:
         print "[FAILED] " + e['summary']

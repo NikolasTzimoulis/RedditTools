@@ -33,6 +33,7 @@ except:
     passwordFile.close()
 
 r = praw.Reddit(user_agent=subreddit)
+r.login(userName, passWord, disable_warning=True)
 submissions = r.get_subreddit(subreddit).get_new(limit=None)
 googleCalendar.setCalendarID(calendarID)
 updatedLastCheckDate = None
@@ -49,9 +50,9 @@ for s in submissions:
     title = fromDate.strftime("FROM %Y/%m/%d: ") + ' '.join(titleWords[2:])
     print s.title
     googleCalendar.addEvent(title, toDate, description=s.permalink, source=s.url)
+    r.set_flair(subreddit, s, flair_text=u'sent', flair_css_class=u'sent')
     if updatedLastCheckDate is None: updatedLastCheckDate = s.created_utc
-    
-r.login(userName, passWord, disable_warning=True)
+
 
 for m in r.get_unread(limit=None):
     words = m.body.split()
