@@ -6,3 +6,5 @@
 *.pyc
 *.json
 *.pkl
+/becareful.txt
+/secret.txt

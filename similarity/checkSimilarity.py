@@ -4,8 +4,8 @@ import math
 
 reddit = "https://www.reddit.com/comments/"
 
-user1 = "Naurgul"
-user2 = "kafros"
+user1 = "USERNAME1"
+user2 = "USERNAME2"
 similarityThreshold = 20
 
 userProfiles = pickle.load(open("profiles.pickle", "rb"))

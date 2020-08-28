@@ -17,7 +17,7 @@ def extract(comment):
         e.add(newWord)
     return (comment._fast_permalink[32:], e)
 
-accountNames = ["Naurgul", "kafros", "NonAmerican", "Anwnymia"]
+accountNames = ["USERNAME1", "USERNAME2"]
 
 user_agent = ("Naurgul bot")
 thing_limit = None

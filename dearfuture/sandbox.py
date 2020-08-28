@@ -1,3 +1,4 @@
+#! python2
 import googleCalendar
 import datetime
 

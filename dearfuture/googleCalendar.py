@@ -1,3 +1,4 @@
+#! python2
 import datetime
 import httplib2
 import os

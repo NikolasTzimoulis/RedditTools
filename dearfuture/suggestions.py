@@ -1,3 +1,4 @@
+#! python2
 import praw
 import dateFunctions
 import os
