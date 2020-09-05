@@ -2,7 +2,7 @@
 import praw
 import datetime
 
-liverun = False
+liverun = True
 specific = []
 
 credFile = '../becareful.txt'
@@ -50,6 +50,7 @@ for conv in convList:
             if all(map(lambda x: x in msg.body_markdown, counter)):
                 isCounter = True
                 needToPost = False
+                roundsCounted = len(rounds)
             msgDate = datetime.datetime.strptime(msg.date, dateFormat) if isinstance(msg.date, str) else msg.date 
             rYper = sum(v == True for v in votes.values())
             rKata = sum(v == False for v in votes.values())
@@ -78,7 +79,9 @@ for conv in convList:
     observers = list(filter(lambda u: votes[u] == None, votes.keys()))
     if len(observers) > 0 and len(output) > 0:
         output += "ΥΓ: Συμμετείχαν στη συζήτηση χωρίς να ψηφίσουν οι " + ", ".join(observers) + ".\n\n"
+    print(conv.subject, "https://mod.reddit.com/mail/all/"+conv.id, end='')
     if len(output) > 0 and needToPost:
-        print(conv.subject, "https://mod.reddit.com/mail/all/"+conv.id)
+        print()
         print(output)      
         if liverun: conv.reply(output, internal=True)
+    else: print("\tOK")
