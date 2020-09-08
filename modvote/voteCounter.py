@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import praw
 import datetime
+import math
 
 liverun = True
 specific = []
@@ -76,12 +77,17 @@ for conv in convList:
                 rounds.append(msgDate)
             if user is not None and (not user.name in votes or theVote is not None): 
                 votes[user.name] = theVote
-    observers = list(filter(lambda u: votes[u] == None, votes.keys()))
-    if len(observers) > 0 and len(output) > 0:
-        output += "ΥΓ: Συμμετείχαν στη συζήτηση χωρίς να ψηφίσουν οι " + ", ".join(observers) + ".\n\n"
+    if len(output) > 0:
+        output += "Απαιτούνται " + str(math.ceil(prevCount*0.2)) + " νέες ψήφοι για έναρξη επόμενου γύρου.\n\n"
+        observers = list(filter(lambda u: votes[u] == None, votes.keys()))
+        if len(observers) > 0:
+            output += "ΥΓ: Συμμετείχαν στη συζήτηση χωρίς να ψηφίσουν οι " + ", ".join(observers) + ".\n\n"
     print(conv.subject, "https://mod.reddit.com/mail/all/"+conv.id, end='')
     if len(output) > 0 and needToPost:
         print()
         print(output)      
-        if liverun: conv.reply(output, internal=True)
+        if liverun: 
+            conv.reply(output, internal=True)
+            conv.unread()
+            conv.highlight()
     else: print("\tOK")
