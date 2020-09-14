@@ -53,7 +53,7 @@ for msg in thread.messages:
 
 output = ""
 for log in r.subreddit(ourSub).mod.log():
-    date = datetime.datetime.fromtimestamp(log.created_utc).replace(tzinfo=datetime.timezone.utc)
+    date = datetime.datetime.fromtimestamp(log.created_utc, tz=datetime.timezone.utc)
     if date > lastTime and not log._mod == "AutoModerator":
         output += "* u/" + log._mod + ": " 
         if log.action in categories:
