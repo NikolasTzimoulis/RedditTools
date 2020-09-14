@@ -8,8 +8,8 @@ specific = []
 
 credFile = '../becareful.txt'
 ourSub = 'Koina'
-yper = [u"υπέρ", u"υπερ", u"yper", u"Υπέρ", u"Υπερ", u"Yper"]
-kata = [u"κατά", u"κατα", u"kata", u"Κατά", u"Κατα", u"Kata"]
+yper = [u"υπέρ", u"υπερ", u"yper", u"Υπέρ", u"Υπερ", u"Yper", u"ΥΠΕΡ", u"YPER"]
+kata = [u"κατά", u"κατα", u"kata", u"Κατά", u"Κατα", u"Kata", u"ΚΑΤΑ", u"KATA"]
 counter = [u"γύρο", u"μετράω", u"υπέρ", u"κατά", u"Άρα"]
 oneWeek = datetime.timedelta(days=7)
 dateFormat = "%Y-%m-%dT%H:%M:%S.%f%z"
