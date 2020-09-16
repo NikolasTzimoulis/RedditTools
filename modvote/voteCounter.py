@@ -2,6 +2,7 @@
 import praw
 import datetime
 import math
+import string
 
 liverun = True
 specific = []
@@ -34,14 +35,15 @@ for conv in convList:
     roundsCounted = 0
     needToPost = True
     messageList = conv.messages 
-    messageList.append(praw.models.ModmailMessage(r, {"author":None, "body_markdown":"", "date":datetime.datetime.now().replace(tzinfo=datetime.timezone.utc)}))
+    messageList.append(praw.models.ModmailMessage(r, {"author":None, "body_markdown":"", "date":datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)}))
     for msg in messageList:
         user = msg.author
         theVote = None
         isCounter = False
         if user is None or user.is_subreddit_mod:
-            yes = any(map(lambda x: x in msg.body_markdown, yper))
-            no = any(map(lambda x: x in msg.body_markdown, kata))             
+            msgWords = [x.strip(string.punctuation) for x in msg.body_markdown.split()]
+            yes = any(map(lambda x: x in msgWords, yper))
+            no = any(map(lambda x: x in msgWords, kata))             
             if yes and not no:
                 theVote = True
             elif no and not yes:
