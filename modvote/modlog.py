@@ -17,13 +17,13 @@ categories = {"invitemoderator": u"πρόσκληση νέου moderator",
               "banuser": u"αποβολή χρήστη",
               "unbanuser": u"ανάκληση αποβολής",              
               "approvecomment": u"έγκριση σχολίου",
-              "distinguish ": u"επισήμανση σχολίου",
-              "showcomment ": u"εμφάνιση σχολίου",                 
-              "removecomment ": u"αφαίρεση σχολίου",              
+              "distinguish": u"επισήμανση σχολίου",
+              "showcomment": u"εμφάνιση σχολίου",                 
+              "removecomment": u"αφαίρεση σχολίου",              
               "spamcomment": u"σπαμ σχόλιο",
-              "sticky ": u"καρφίτσωμα ανάρτησης",              
-              "unsticky ": u"ξε-καρφίτσωμα ανάρτησης",
-              "approvelink ": u"έγκριση ανάρτησης",
+              "sticky": u"καρφίτσωμα ανάρτησης",              
+              "unsticky": u"ξε-καρφίτσωμα ανάρτησης",
+              "approvelink": u"έγκριση ανάρτησης",
               "removelink": u"αφαίρεση ανάρτησης",
               "spamlink": u"σπαμ ανάρτηση", 
               "unignorereports": u"μη-σίγαση reports",
@@ -77,4 +77,5 @@ for log in r.subreddit(ourSub).mod.log():
 print(output)
 if liverun and len(output) > 0:
     thread.reply(output, internal=True)
+    thread.unread()
  
