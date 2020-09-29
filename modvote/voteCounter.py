@@ -12,6 +12,7 @@ ourSub = 'Koina'
 yper = [u"υπέρ", u"υπερ", u"yper", u"Υπέρ", u"Υπερ", u"Yper", u"ΥΠΕΡ", u"YPER"]
 kata = [u"κατά", u"κατα", u"kata", u"Κατά", u"Κατα", u"Kata", u"ΚΑΤΑ", u"KATA"]
 counter = [u"γύρο", u"μετράω", u"υπέρ", u"κατά", u"Άρα"]
+counter2 = [u"γύρος", u"Μετράω", u"υπέρ", u"κατά", u"Άρα"]
 oneWeek = datetime.timedelta(days=7)
 dateFormat = "%Y-%m-%dT%H:%M:%S.%f%z"
 
@@ -50,7 +51,7 @@ for conv in convList:
                 theVote = False
             else:
                 theVote = None
-            if all(map(lambda x: x in msg.body_markdown, counter)):
+            if all(map(lambda x: x in msg.body_markdown, counter)) or all(map(lambda x: x in msg.body_markdown, counter2)):
                 isCounter = True
                 needToPost = False
                 roundsCounted = len(rounds)
@@ -60,8 +61,9 @@ for conv in convList:
             if len(rounds) > roundsCounted and rounds[-1] + oneWeek < msgDate and rYper+rKata >= 1.2 * prevCount:
                 roundsCounted = len(rounds)
                 if not isCounter: needToPost = True                     
-                output += "Στον " + str(len(rounds))+ "ο γύρο μετράω " 
-                output += str(rYper) + " υπέρ (" 
+                output += "Ο " + str(len(rounds))+ "ος γύρος έληξε στις "                
+                output +=  (rounds[-1] + oneWeek).strftime("%d/%m, %H:%M. ")
+                output += "Μετράω " + str(rYper) + " υπέρ (" 
                 output += ", ".join(filter(lambda u: votes[u] == True, votes.keys())) + ") και "
                 output +=  str(rKata) + " κατά ("
                 output += ", ".join(filter(lambda u: votes[u] == False, votes.keys())) + "). "
