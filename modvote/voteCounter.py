@@ -54,12 +54,11 @@ for conv in convList:
             if all(map(lambda x: x in msg.body_markdown, counter)) or all(map(lambda x: x in msg.body_markdown, counter2)):
                 isCounter = True
                 needToPost = False
-                roundsCounted = len(rounds)
             msgDate = datetime.datetime.strptime(msg.date, dateFormat) if isinstance(msg.date, str) else msg.date 
             rYper = sum(v == True for v in votes.values())
             rKata = sum(v == False for v in votes.values())
             if len(rounds) > roundsCounted and rounds[-1] + oneWeek < msgDate and rYper+rKata >= 1.2 * prevCount:
-                roundsCounted = len(rounds)
+                roundsCounted += 1
                 if not isCounter: needToPost = True                     
                 output += "Ο " + str(len(rounds))+ "ος γύρος έληξε στις "                
                 output +=  (rounds[-1] + oneWeek).strftime("%d/%m, %H:%M. ")
