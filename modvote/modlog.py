@@ -67,7 +67,7 @@ for log in r.subreddit(ourSub).mod.log():
         if log.target_title is not None and log.target_permalink is not None: 
             output += "[" + log.target_title + "](" + log.target_permalink + ") "
         elif log.target_permalink is not None and log.target_body is not None:
-            output += "[" + log.target_body[:50] + "](" + log.target_permalink + ") "
+            output += "[" + log.target_body[:50].replace("\n", " ") + "](" + log.target_permalink + ") "
         elif log.target_permalink is not None:
             output += log.target_permalink + " "
         if len(log.target_author) >0 : 

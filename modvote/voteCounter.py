@@ -3,6 +3,7 @@ import praw
 import datetime
 import math
 import string
+import itertools
 
 liverun = True
 specific = []
@@ -26,7 +27,7 @@ r = praw.Reddit(client_id=cred[0],
 if len(specific) > 0:
     convList = map(lambda x:r.subreddit(ourSub).modmail(x), specific)
 else:
-    convList = r.subreddit(ourSub).modmail.conversations()
+    convList = itertools.chain(r.subreddit(ourSub).modmail.conversations(), r.subreddit(ourSub).modmail.conversations(state="mod"))
 
 for conv in convList:
     output = ""
@@ -76,7 +77,7 @@ for conv in convList:
                 else:
                     output += "Άρα απορρίφθηκε καθώς " + str(round(100.0 * rYper / (rYper + rKata))) + "% < 60%.\n\n"
                 prevCount = rYper + rKata
-            if theVote is not None and (len(rounds) == 0 or rounds[-1] + oneWeek < msgDate and rYper+rKata >= 1.2 * prevCount):
+            if theVote is not None and (len(rounds) == 0 or rounds[-1] + oneWeek < msgDate and rYper+rKata+1 >= 1.2 * prevCount):
                 rounds.append(msgDate)
             if user is not None and (not user.name in votes or theVote is not None): 
                 votes[user.name] = theVote
