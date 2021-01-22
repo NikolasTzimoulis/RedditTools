@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import praw
 import datetime
+import urllib
 
 liverun = True
 
@@ -21,11 +22,11 @@ categories = {"invitemoderator": u"πρόσκληση νέου moderator",
               "showcomment": u"εμφάνιση σχολίου",                 
               "removecomment": u"αφαίρεση σχολίου",              
               "spamcomment": u"σπαμ σχόλιο",
-              "sticky": u"καρφίτσωμα ανάρτησης",              
-              "unsticky": u"ξε-καρφίτσωμα ανάρτησης",
+              "sticky": u"καρφίτσωμα",              
+              "unsticky": u"ξε-καρφίτσωμα",
               "approvelink": u"έγκριση ανάρτησης",
               "removelink": u"αφαίρεση ανάρτησης",
-              "spamlink": u"σπαμ ανάρτηση", 
+              "spamlink": u"αναφορά ανάρτησης ως σπαμ", 
               "unignorereports": u"μη-σίγαση reports",
               "ignorereports": u"σίγαση reports",
               "editflair": u"αλλαγή flair",              
@@ -34,7 +35,8 @@ categories = {"invitemoderator": u"πρόσκληση νέου moderator",
               "wikirevise": u"επεξεργασία wiki",
               "add_community_topics": u"προσθήκη θεμάτων υπορέντιτ",
               "remove_community_topics": u"αφαίρεση θεμάτων υπορέντιτ",              
-              "community_styling": u"επεξεργασία εμφάνισης",                            
+              "community_styling": u"επεξεργασία εμφάνισης", 
+              "community_widgets": u"αλλαγή μπιχλιμπιδιών",  
               }
 threadID = 'gzaml'
 
@@ -51,31 +53,63 @@ lastTime = None
 for msg in thread.messages:
     if msg.body_markdown.startswith("* "): lastTime = datetime.datetime.strptime(msg.date, dateFormat)
 
-output = ""
+actions= []
 for log in r.subreddit(ourSub).mod.log():
     date = datetime.datetime.fromtimestamp(log.created_utc, tz=datetime.timezone.utc)
     if date > lastTime and not log._mod == "AutoModerator":
-        output += "* u/" + log._mod + ": " 
+        action = "* u/" + log._mod + ": " 
+        subject = "Διαβούλευση για "
+        message = "Διαφωνώ με την ατομική πρωτοβουλία "
         if log.action in categories:
-            output += categories[log.action] + " "
+            action += categories[log.action] + " "
+            subject += categories[log.action] + " "
         else:
-            output += log.action + " "
+            action += log.action + " "
+            subject += log.action + " "
         if log.description is not None:
-            output += "(" + log.description + ") "
+            action += "(" + log.description + ") "
+            subject += "(" + log.description + ") "
         if log.details is not None:
-            output += "(" + log.details + ") " 
+            action += "(" + log.details + ") " 
+            subject += "(" + log.details + ") "
+        if log.target_permalink is not None:
+            linkshort = log.target_permalink.split('/')
+            linkshort[5] = '-'
+            linkshort = '/'.join(linkshort)
+            actionshort = action[2:] + linkshort + " "
+        else:
+            actionshort = action[2:]
         if log.target_title is not None and log.target_permalink is not None: 
-            output += "[" + log.target_title + "](" + log.target_permalink + ") "
+            action += "[" + log.target_title + "](" + linkshort + ") "
         elif log.target_permalink is not None and log.target_body is not None:
-            output += "[" + log.target_body[:50].replace("\n", " ") + "](" + log.target_permalink + ") "
+            action += "[" + log.target_body[:50].replace("\n", " ") + "](" + linkshort + ") "
         elif log.target_permalink is not None:
-            output += log.target_permalink + " "
+            action += linkshort + " "
         if len(log.target_author) >0 : 
-            output += "(u/" + log.target_author + ")"
-        output += "\n"
-        
-print(output)
-if liverun and len(output) > 0:
-    thread.reply(output, internal=True)
-    thread.unread()
+            action += "(u/" + log.target_author + ") "
+            actionshort += "(u/" + log.target_author + ") "
+        message += actionshort + "άρα μπαίνει σε διαβούλευση και ψηφίζω κατά."
+        link = "http://www.reddit.com/message/compose?"
+        link += urllib.parse.urlencode({'to': "/r/"+ourSub, 'subject': subject, 'message': message}, safe='/') 
+        print(action)
+        action += "[❌](" + link + ")"
+        actions.append(action)
+       
+actions.reverse()
+while liverun and len(actions) > 0:
+    alldone = False
+    for i in range(len(actions)):
+        output = "\n".join(actions[0:i])
+        if len(output) > 10000:
+            thread.reply("\n".join(actions[0:i-1]), internal=True)
+            #print("\n".join(actions[0:i-1]))
+            #print("-----")
+            actions = actions[i-1:]
+            break
+        alldone = True
+    if alldone:
+        thread.reply("\n".join(actions), internal=True)
+        #print("\n".join(actions))
+        actions = []
+thread.unread()
  
