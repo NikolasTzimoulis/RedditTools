@@ -13,7 +13,7 @@ credFile = '../secret.txt'
 subredditName = 'DearFuture'
 calendarID = 'o8oq4ir40k0j1g7umacsuhq8tk@group.calendar.google.com'
 
-print "Delivering to /r/DearFuture's inbox..."
+print("Delivering to /r/DearFuture's inbox...")
 
 try:
     lastSubmitDateFile = open(lastSubmitDateFileName, 'rb')
@@ -23,7 +23,7 @@ except:
     lastSubmitDate = datetime.datetime(1, 1, 1)
 
    
-cred = map(lambda s: s.strip(), tuple(open(credFile, 'r')))
+cred = list(map(lambda s: s.strip(), tuple(open(credFile, 'r'))))
 
 r = praw.Reddit(client_id=cred[0],
                      client_secret=cred[1],
@@ -46,12 +46,12 @@ for e in events:
             link = e['source']['url']
         submission = sub.submit(e['summary'], url=link, resubmit=True)
         submission.flair.select(submission.flair.choices()[0]['flair_template_id'])
-        print "[SUCCESS] ",
-        logFile.write(e['summary'].encode('utf-8')+' ')
+        print("[SUCCESS] ",)
+        #logFile.write(e['summary'].encode('utf-8')+" ")
     except:
-        print traceback.format_exc()
-        print "[FAILED] ", 
-        logFile.write("[FAILED] " + e['summary'].encode('utf-8'))
+        print(traceback.format_exc())
+        print("[FAILED] ",) 
+        #logFile.write("[FAILED] " + e['summary'].encode('utf-8'))
     try:
         linkParts= link.split('/') 
         originalComment = r.comment(linkParts[-1] if linkParts[-1].isalnum() else linkParts[-2])
@@ -60,11 +60,11 @@ for e in events:
             originalComment.author.message('/r/DearFuture Inbox', '['+e['summary']+']('+submission.permalink+')')
         except:
             originalSubmisson.author.message('/r/DearFuture Inbox', '['+e['summary']+']('+submission.permalink+')')           
-        print " [PM SENT TO OP]"
-        logFile.write(" [PM SENT TO OP]\n")
+        print(" [PM SENT TO OP]")
+        #logFile.write(" [PM SENT TO OP]\n")
     except:
-        print " [FAILED TO PM OP]"
-        logFile.write(" [FAILED TO PM OP]\n")
+        print(" [FAILED TO PM OP]")
+        #logFile.write(" [FAILED TO PM OP]\n")
 
 lastSubmitDateFile = open(lastSubmitDateFileName, 'wb')
 pickle.dump(now, lastSubmitDateFile)

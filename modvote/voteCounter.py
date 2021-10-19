@@ -12,10 +12,12 @@ credFile = '../becareful.txt'
 ourSub = 'Koina'
 yper = [u"υπέρ", u"υπερ", u"yper", u"Υπέρ", u"Υπερ", u"Yper", u"ΥΠΕΡ", u"YPER"]
 kata = [u"κατά", u"κατα", u"kata", u"Κατά", u"Κατα", u"Kata", u"ΚΑΤΑ", u"KATA"]
-counter = [u"γύρο", u"μετράω", u"υπέρ", u"κατά", u"Άρα"]
-counter2 = [u"γύρος", u"Μετράω", u"υπέρ", u"κατά", u"Άρα"]
+counter = [u"γύρος", u"Μετράω", u"υπέρ", u"κατά", u"Άρα"]
+close = [u"κλείσει", u"οριστικά", u"40", u"λήξη", u"τελευταίου", u"μέλλον", u"μεταβάλλει"]
 oneWeek = datetime.timedelta(days=7)
+fortyDays = datetime.timedelta(days=40)
 dateFormat = "%Y-%m-%dT%H:%M:%S.%f%z"
+rightNow = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
 
 cred = list(map(lambda s: s.strip(), tuple(open(credFile, 'r'))))
 r = praw.Reddit(client_id=cred[0],
@@ -23,6 +25,8 @@ r = praw.Reddit(client_id=cred[0],
                      password=cred[2],
                      user_agent=cred[3],
                      username=cred[4])
+
+convWithVotes = {}
 
 if len(specific) > 0:
     convList = map(lambda x:r.subreddit(ourSub).modmail(x), specific)
@@ -36,8 +40,9 @@ for conv in convList:
     prevCount = 0
     roundsCounted = 0
     needToPost = True
+    isClosed = False
     messageList = conv.messages 
-    messageList.append(praw.models.ModmailMessage(r, {"author":None, "body_markdown":"", "date":datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)}))
+    messageList.append(praw.models.ModmailMessage(r, {"id":None, "author":None, "body_markdown":"", "date":rightNow}))
     for msg in messageList:
         user = msg.author
         theVote = None
@@ -52,7 +57,7 @@ for conv in convList:
                 theVote = False
             else:
                 theVote = None
-            if all(map(lambda x: x in msg.body_markdown, counter)) or all(map(lambda x: x in msg.body_markdown, counter2)):
+            if all(map(lambda x: x in msg.body_markdown, counter)) or all(map(lambda x: x in msg.body_markdown, close)):
                 isCounter = True
                 needToPost = False
             msgDate = datetime.datetime.strptime(msg.date, dateFormat) if isinstance(msg.date, str) else msg.date 
@@ -77,11 +82,19 @@ for conv in convList:
                 else:
                     output += "Άρα απορρίφθηκε καθώς " + str(round(100.0 * rYper / (rYper + rKata))) + "% < 60%.\n\n"
                 prevCount = rYper + rKata
-            if theVote is not None and (len(rounds) == 0 or rounds[-1] + oneWeek < msgDate and rYper+rKata+1 >= 1.2 * prevCount):
+            if len(rounds) > 0 and rounds[-1] + oneWeek + fortyDays < msgDate:
+                needToPost = True
+                output = "Η διαβούλευση έχει κλείσει οριστικά καθώς πέρασαν 40 μέρες από τη λήξη του τελευταίου γύρου.\n\n"
+                output += "Αν στο μέλλον υπάρξει διαβούλευση που μεταβάλλει το πιο πάνω αποτέλεσμα, απαιτείται να έχει τουλάχιστο " + str(math.ceil(prevCount*0.4)) + " ψήφους."
+                isClosed = True  
+            if theVote is not None and (len(rounds) == 0 or rounds[-1] + oneWeek < msgDate and rYper+rKata+1 >= 1.2 * prevCount and not isClosed):
                 rounds.append(msgDate)
             if user is not None and (not user.name in votes or theVote is not None): 
                 votes[user.name] = theVote
-    if len(output) > 0:
+                if theVote is not None and msgDate + oneWeek > rightNow: 
+                    convWithVotes[conv.id] = (msgDate, conv.subject, conv.user.name if hasattr(conv, 'user') else "", sum(v == True or v == False for v in votes.values()))              
+    if len(output) > 0 and not isClosed:
+        output += "Η τρέχουσα διαβούλευση είναι άκυρη αν μεταβάλλει παλιότερη απόφαση που πάρθηκε με περισσότερες από " + str(math.floor(prevCount/0.4)) + " ψήφους.\n\n"
         output += "Απαιτούνται " + str(math.ceil(prevCount*0.2)) + " νέες ψήφοι για έναρξη επόμενου γύρου.\n\n"
         observers = list(filter(lambda u: votes[u] == None, votes.keys()))
         if len(observers) > 0:
@@ -95,3 +108,16 @@ for conv in convList:
             conv.unread()
             conv.highlight()
     else: print("\tOK")
+
+if rightNow.weekday() == 6 and len(convWithVotes) > 0:
+    weeklySummary = "Ορίστε οι διαβουλεύσεις που έχουν λάβει ψήφους την τελευταία εβδομάδα:\n\n"
+    for conv in sorted(list(convWithVotes.keys()), key=(lambda x: convWithVotes[x][0])):
+        weeklySummary += "* [" + convWithVotes[conv][1] + "](https://mod.reddit.com/mail/all/" + conv + ") " 
+        weeklySummary += "(u/" +  convWithVotes[conv][2] + ") " if not convWithVotes[conv][2] == ""  else "" 
+        weeklySummary += "(" + str(convWithVotes[conv][3]) + " ψήφοι)\n" 
+    weeklySummary += "\n\nΠάρθηκε απόφαση που δε σου άρεσε αλλά δεν τη βρίσκεις παραπάνω επειδή έγινε με ατομική πρωτοβουλία; [Πήγαινε στο Ιστορικό](https://mod.reddit.com/mail/mod/gzaml) κι από εκεί μπορείς να την βάλεις σε διαβούλευση πατώντας το ❌."
+    weeklySummary += "\n\nΔε σε αφήνει ούτε καν να μπεις στις διαβουλεύσεις; Αυτό σημαίνει ότι δεν είσαι ακόμα μέλος του r/koina. [Στείλε ένα modmail](https://www.reddit.com/message/compose?to=%2Fr%2FKoina&subject=Πρόσκληση) για να γίνεις."
+    print(weeklySummary)
+    if liverun:
+        submission = r.subreddit(ourSub).submit(title="Πρόσφατες διαβουλεύσεις", selftext=weeklySummary)
+        submission.flair.select(submission.flair.choices()[0]['flair_template_id'], text="META")

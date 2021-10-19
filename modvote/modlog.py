@@ -37,6 +37,7 @@ categories = {"invitemoderator": u"πρόσκληση νέου moderator",
               "remove_community_topics": u"αφαίρεση θεμάτων υπορέντιτ",              
               "community_styling": u"επεξεργασία εμφάνισης", 
               "community_widgets": u"αλλαγή μπιχλιμπιδιών",  
+              "collections": u"συλλογή",
               }
 threadID = 'gzaml'
 

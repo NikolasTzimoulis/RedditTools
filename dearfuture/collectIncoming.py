@@ -24,7 +24,7 @@ except:
     lastCheckDate = 0
     
 
-cred = map(lambda s: s.strip(), tuple(open(credFile, 'r')))
+cred = list(map(lambda s: s.strip(), tuple(open(credFile, 'r'))))
 
 r = praw.Reddit(client_id=cred[0],
                      client_secret=cred[1],
@@ -36,7 +36,7 @@ googleCalendar.setCalendarID(calendarID)
 updatedLastCheckDate = None
 logFile = open(logFileName, 'w')
 
-print "Collecting sent mail to the future..."
+print("Collecting sent mail to the future...")
 
 for s in submissions:
     if s.created_utc <= lastCheckDate: break

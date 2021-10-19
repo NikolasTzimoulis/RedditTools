@@ -1,12 +1,12 @@
-#! python2
 import datetime
 import httplib2
 import os
-import urllib2
-from BeautifulSoup import BeautifulSoup
+import urllib
+from bs4 import BeautifulSoup
 
 from apiclient import discovery
 import oauth2client
+from oauth2client import file 
 from oauth2client import client
 from oauth2client import tools
 
@@ -49,7 +49,7 @@ def get_credentials():
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatability with Python 2.6
             credentials = tools.run(flow, store)
-        print 'Storing credentials to ' + credential_path
+        print('Storing credentials to ' + credential_path)
     return credentials
 
 def setCalendarID(calendarID):
@@ -80,13 +80,13 @@ def createEvent(title, startTime, endTime, description, source):
   },
   "source": {
     "url": source,
-    "title": BeautifulSoup(urllib2.urlopen("https://www.google.com")).title.string,
+    "title": BeautifulSoup(urllib.request.urlopen("https://www.google.com")).title.string,
   }
 }
     
 def createAllDayEvent(title, date, description, source):
     try:
-        sourcetitle = BeautifulSoup(urllib2.urlopen(source)).title.string
+        sourcetitle = BeautifulSoup(urllib.request.urlopen(source)).title.string
     except:
         sourcetitle = ''
     return {
