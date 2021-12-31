@@ -38,6 +38,8 @@ categories = {"invitemoderator": u"πρόσκληση νέου moderator",
               "community_styling": u"επεξεργασία εμφάνισης", 
               "community_widgets": u"αλλαγή μπιχλιμπιδιών",  
               "collections": u"συλλογή",
+              "lock": u"κλείδωμα",
+              "muteuser": u"σίγαση",
               }
 threadID = 'gzaml'
 

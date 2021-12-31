@@ -33,6 +33,7 @@ if len(specific) > 0:
 else:
     convList = itertools.chain(r.subreddit(ourSub).modmail.conversations(), r.subreddit(ourSub).modmail.conversations(state="mod"))
 
+
 for conv in convList:
     output = ""
     votes = {}
@@ -57,9 +58,12 @@ for conv in convList:
                 theVote = False
             else:
                 theVote = None
-            if all(map(lambda x: x in msg.body_markdown, counter)) or all(map(lambda x: x in msg.body_markdown, close)):
+            if all(map(lambda x: x in msg.body_markdown, counter)):
                 isCounter = True
                 needToPost = False
+            if all(map(lambda x: x in msg.body_markdown, close)):
+                isClosed = True  
+                output = ""
             msgDate = datetime.datetime.strptime(msg.date, dateFormat) if isinstance(msg.date, str) else msg.date 
             rYper = sum(v == True for v in votes.values())
             rKata = sum(v == False for v in votes.values())
@@ -82,7 +86,7 @@ for conv in convList:
                 else:
                     output += "Άρα απορρίφθηκε καθώς " + str(round(100.0 * rYper / (rYper + rKata))) + "% < 60%.\n\n"
                 prevCount = rYper + rKata
-            if len(rounds) > 0 and rounds[-1] + oneWeek + fortyDays < msgDate:
+            if not isClosed and len(rounds) > 0 and rounds[-1] + oneWeek + fortyDays < msgDate:
                 needToPost = True
                 output = "Η διαβούλευση έχει κλείσει οριστικά καθώς πέρασαν 40 μέρες από τη λήξη του τελευταίου γύρου.\n\n"
                 output += "Αν στο μέλλον υπάρξει διαβούλευση που μεταβάλλει το πιο πάνω αποτέλεσμα, απαιτείται να έχει τουλάχιστο " + str(math.ceil(prevCount*0.4)) + " ψήφους."
@@ -106,7 +110,8 @@ for conv in convList:
         if liverun: 
             conv.reply(output, internal=True)
             conv.unread()
-            conv.highlight()
+            if not isClosed: 
+                conv.highlight()
     else: print("\tOK")
 
 if rightNow.weekday() == 6 and len(convWithVotes) > 0:

@@ -1,4 +1,5 @@
 import datetime
+import time
 import httplib2
 import os
 import urllib
@@ -86,7 +87,7 @@ def createEvent(title, startTime, endTime, description, source):
     
 def createAllDayEvent(title, date, description, source):
     try:
-        sourcetitle = BeautifulSoup(urllib.request.urlopen(source)).title.string
+        sourcetitle = BeautifulSoup(urllib.request.urlopen(source), features="html.parser").title.string
     except:
         sourcetitle = ''
     return {
@@ -114,6 +115,7 @@ def createAllDayEvent(title, date, description, source):
 }
 
 def addEvent(title, eventtime, duration=None, description='', source=''):
+    time.sleep(5)
     if duration is not None:
         starttimetext = eventtime.isoformat() + 'Z'
         endtimetext = (eventtime+duration).isoformat() + 'Z'

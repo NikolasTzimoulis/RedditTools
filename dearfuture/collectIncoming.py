@@ -5,6 +5,7 @@ import praw
 import googleCalendar
 import dateFunctions
 import os
+import traceback
 
 checkdateFileName = 'lastcheckdate.pkl'
 credFile = '../secret.txt'
@@ -51,7 +52,7 @@ for s in submissions:
             title = fromDate.strftime("FROM %Y/%m/%d: ") + ' '.join(words)
         else:
             title = fromDate.strftime("FROM %Y/%m/%d: ") + ' '.join(words[d[1]+1:])
-        logFile.write(' '.join([str(s.score), s.title, s.permalink, '\n']).encode('utf-8'))
+        logFile.write(str(' '.join([str(s.score), s.title, s.permalink, '\n']).encode('utf-8')))
         googleCalendar.addEvent(title, toDate, description=s.permalink, source=s.url)
         s.flair.select(s.flair.choices()[1]['flair_template_id'])
     messageText = "I saw [your submission](" + s.permalink + ") on r/DearFuture "
@@ -66,23 +67,28 @@ for s in submissions:
 for m in r.inbox.unread(limit=None):
     words = m.body.split()
     dates = dateFunctions.getDates(words, now)
+    succ = 0
     for d in dates:
         try:
             toDate = d[0]
             fromDate = datetime.datetime.fromtimestamp(m.created_utc).date()
             title = fromDate.strftime("FROM %Y/%m/%d: ") + m.submission.title
             if m.submission.comments[0].score < minScoreAllowed: continue
-            logFile.write(' '.join([m.body, m.context, '\n']).encode('utf-8'))
+            logFile.write(str(' '.join([m.body, m.context, '\n']).encode('utf-8')))
             googleCalendar.addEvent(title, toDate, description=m.body, source=redditURL+m.context)
-        except:
+            succ += 1
+        except Exception:
+            traceback.print_exc()
+            print("FAILED " + toDate.strftime("%Y/%m/%d") + " "  + title)
             continue
-    m.mark_read()
-    messageText = "I saw [your message](" + m.context + ") "  
-    if dates:
-        messageText += "and I will [remind you about it](/r/DearFuture) on " + " and on ".join(map(lambda d:d[0].strftime("%Y/%m/%d"), dates)) + "."
-    else:
-        messageText += "but I didn't see any [future date](https://www.reddit.com/r/DearFuture/comments/3os3rc/) included."
-    m.author.message('/r/DearFuture Sent', messageText)
+    if succ > 0:
+        m.mark_read()
+        messageText = "I saw [your message](" + m.context + ") "  
+        if dates:
+            messageText += "and I will [remind you about it](/r/DearFuture) on " + " and on ".join(map(lambda d:d[0].strftime("%Y/%m/%d"), dates)) + "."
+        else:
+            messageText += "but I didn't see any [future date](https://www.reddit.com/r/DearFuture/comments/3os3rc/) included."
+        m.author.message('/r/DearFuture Sent', messageText)
     
 if updatedLastCheckDate is not None:  
     checkdateFile = open(checkdateFileName, 'wb')
