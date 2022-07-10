@@ -40,6 +40,7 @@ categories = {"invitemoderator": u"πρόσκληση νέου moderator",
               "collections": u"συλλογή",
               "lock": u"κλείδωμα",
               "muteuser": u"σίγαση",
+              "addnote": u"σημείωμα",
               }
 threadID = 'gzaml'
 

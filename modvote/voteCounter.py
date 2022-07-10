@@ -7,6 +7,7 @@ import itertools
 
 liverun = True
 specific = []
+convLimit = 100
 
 credFile = '../becareful.txt'
 ourSub = 'Koina'
@@ -31,7 +32,7 @@ convWithVotes = {}
 if len(specific) > 0:
     convList = map(lambda x:r.subreddit(ourSub).modmail(x), specific)
 else:
-    convList = itertools.chain(r.subreddit(ourSub).modmail.conversations(), r.subreddit(ourSub).modmail.conversations(state="mod"))
+    convList = itertools.chain(r.subreddit(ourSub).modmail.conversations(limit=convLimit), r.subreddit(ourSub).modmail.conversations(state="mod", limit=convLimit))
 
 
 for conv in convList:
@@ -42,7 +43,7 @@ for conv in convList:
     roundsCounted = 0
     needToPost = True
     isClosed = False
-    messageList = conv.messages 
+    messageList = r.subreddit(ourSub).modmail(conv.id).messages
     messageList.append(praw.models.ModmailMessage(r, {"id":None, "author":None, "body_markdown":"", "date":rightNow}))
     for msg in messageList:
         user = msg.author
@@ -114,7 +115,7 @@ for conv in convList:
                 conv.highlight()
     else: print("\tOK")
 
-if rightNow.weekday() == 6 and len(convWithVotes) > 0:
+if rightNow.weekday() == 6 and len(convWithVotes) > 0 and len(specific) == 0:
     weeklySummary = "Ορίστε οι διαβουλεύσεις που έχουν λάβει ψήφους την τελευταία εβδομάδα:\n\n"
     for conv in sorted(list(convWithVotes.keys()), key=(lambda x: convWithVotes[x][0])):
         weeklySummary += "* [" + convWithVotes[conv][1] + "](https://mod.reddit.com/mail/all/" + conv + ") " 
